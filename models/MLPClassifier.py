@@ -1,6 +1,6 @@
 import torch.nn as nn
 import numpy as np
-
+import torch
 
 class MLPClassifier(nn.Module):
     def __init__(self, depth=7, input_dim=2, hidden_dim=64, out_dim=1):
