@@ -1,5 +1,4 @@
-
-def prepare_data(X, y, multiclass=False, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1):
+def prepare_data(X: np.ndarray, y: np.ndarray, multiclass: bool = False, train_ratio: float = 0.8, val_ratio: float = 0.1, test_ratio: float =0.1) -> Tuple[TensorDataset, TensorDataset, TensorDataset]:
     X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=(1 - train_ratio), random_state=42)
     val_split = test_ratio / (test_ratio + val_ratio)
     X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=val_split, random_state=42)
@@ -21,8 +20,8 @@ def prepare_data(X, y, multiclass=False, train_ratio=0.8, val_ratio=0.1, test_ra
     test_dataset  = TensorDataset(X_test, y_test)
     return train_dataset, val_dataset, test_dataset
 
-def get_data_loaders(train_dataset, val_dataset, test_dataset, batch_size=32):
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader   = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
-    test_loader  = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+def get_data_loaders(train_dataset: TensorDataset, val_dataset: TensorDataset, test_dataset: TensorDataset, batch_size: int = 32) -> Tuple[TensorDataset, TensorDataset, TensorDataset]:
+    train_loader: DataLoader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    val_loader: DataLoader   = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+    test_loader: DataLoader  = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
     return train_loader, val_loader, test_loader
