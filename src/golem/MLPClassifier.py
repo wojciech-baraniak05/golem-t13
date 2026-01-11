@@ -1,5 +1,13 @@
+import torch
+import torch.nn as nn
+import numpy as np
+from typing import Tuple
+from torch.utils.data import DataLoader
+
+
 class MLPClassifier(nn.Module):
-    def __init__(self, depth:int = 7, input_dim:int = 2, hidden_dim:int = 64, out_dim:int = 1):
+    
+    def __init__(self, depth: int = 7, input_dim: int = 2, hidden_dim: int = 64, out_dim: int = 1):
         super().__init__()
         
         if depth < 2:
@@ -22,7 +30,6 @@ class MLPClassifier(nn.Module):
             layers.append(nn.ReLU())
             
         self.seq: nn.Sequential = nn.Sequential(*layers)
-        
         self.head: nn.Linear = nn.Linear(layer_dims[-1], out_dim)
     
     def forward(self, x: torch.Tensor, embedding_flag: bool = False) -> torch.Tensor:
@@ -31,17 +38,17 @@ class MLPClassifier(nn.Module):
             return features
         return self.head(features)
     
-    def extract(self, Loader:DataLoader) -> Tuple[np.ndarray, np.ndarray]:
+    def extract(self, Loader: DataLoader, device: torch.device) -> Tuple[np.ndarray, np.ndarray]:
         embeddings: list[torch.Tensor] = []
         labels: list[torch.Tensor] = []
         
         self.eval() 
         with torch.no_grad():
             for X, y in Loader:
-                X = X.to(DEVICE)
-                emb: torch.Tensor = self.forward(X, embeddingFlag=True)
+                X = X.to(device)
+                emb: torch.Tensor = self.forward(X, embedding_flag=True)
                 embeddings.append(emb.cpu())
                 labels.append(y.cpu())
         embeddings: np.ndarray = torch.cat(embeddings, dim=0).numpy()
-        labels:np. ndarray = torch.cat(labels, dim=0).numpy()
+        labels: np.ndarray = torch.cat(labels, dim=0).numpy().ravel()
         return embeddings, labels
