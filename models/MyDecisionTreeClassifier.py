@@ -25,7 +25,7 @@ class MyDecisionTreeClassifier:
 
         self.n_features = X.shape[1] if not self.n_features else min(X.shape[1], self.n_features)
         self.root = self._grow_tree(X, y)
-
+    # Rekurencyjne tworzenie następnych poziomów drzew
     def _grow_tree(self, X, y, depth=0):
         n_samples, n_feats = X.shape
         n_labels = len(np.unique(y))
@@ -44,21 +44,21 @@ class MyDecisionTreeClassifier:
         left = self._grow_tree(X[left_idxs, :], y[left_idxs], depth + 1)
         right = self._grow_tree(X[right_idxs, :], y[right_idxs], depth + 1)
         return Node(best_feat, best_thresh, left, right)
-
+    # Badamy dla jakiego thresholdu, information_gain jest największy
     def _best_split(self, X, y, feat_idxs):
         best_gain = -1
         split_idx, split_thresh = None, None
-        for feat_idx in feat_idxs:
+        for feat_idx in feat_idxs: # iteracja po cechach
             X_column = X[:, feat_idx]
             thresholds = np.unique(X_column)
-            for thr in thresholds:
+            for thr in thresholds: # iteracja po thresholdach
                 gain = self._information_gain(y, X_column, thr)
                 if gain > best_gain:
                     best_gain = gain
                     split_idx = feat_idx
                     split_thresh = thr
         return split_idx, split_thresh
-
+    #sprawdzamy jak bardzo wynik (z _entropy) się zmniejszył u dzieci
     def _information_gain(self, y, X_column, threshold):
         parent_entropy = self._entropy(y)
         left_idxs, right_idxs = self._split(X_column, threshold)
@@ -75,8 +75,8 @@ class MyDecisionTreeClassifier:
         left_idxs = np.where(left_mask)[0]
         right_idxs = np.where(~left_mask)[0]
         return left_idxs, right_idxs
-
-    def _entropy(self, y):
+    # entropia - wzó na badanie uporządkowania naszego podzielonego zbioru
+    def _entropy(self, y):  
         hist = np.bincount(y)
         ps = hist / len(y)
         ps = ps[ps > 0]
