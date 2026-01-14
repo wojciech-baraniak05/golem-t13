@@ -1,6 +1,10 @@
 import numpy as np
 from collections import Counter
 
+# ==========================================
+# 1. Klasy pomocnicze (Drzewo Decyzyjne)
+# ==========================================
+
 class Node:
     def __init__(self, feature=None, threshold=None, left=None, right=None, *, value=None):
         self.feature = feature
@@ -21,7 +25,10 @@ class MyDecisionTreeClassifier:
 
     def fit(self, X, y):
         X = np.array(X)
-        y = np.array(y).ravel().astype(int)
+        y = np.array(y)
+        # Fix shape
+        y = y.ravel() 
+        y = y.astype(int)
 
         self.n_features = X.shape[1] if not self.n_features else min(X.shape[1], self.n_features)
         self.root = self._grow_tree(X, y)
@@ -71,21 +78,19 @@ class MyDecisionTreeClassifier:
         return parent_entropy - child_entropy
 
     def _split(self, X_column, split_thresh):
-        left_mask = X_column <= split_thresh
-        left_idxs = np.where(left_mask)[0]
-        right_idxs = np.where(~left_mask)[0]
+        left_idxs = np.argwhere(X_column <= split_thresh).flatten()
+        right_idxs = np.argwhere(X_column > split_thresh).flatten()
         return left_idxs, right_idxs
 
     def _entropy(self, y):
         hist = np.bincount(y)
         ps = hist / len(y)
-        ps = ps[ps > 0]
-        return -np.sum(ps * np.log2(ps))
+        return -np.sum([p * np.log2(p) for p in ps if p > 0])
 
     def _most_common_label(self, y):
-        if len(y) == 0:
-            return 0
-        return np.bincount(y).argmax()
+        counter = Counter(y)
+        if not counter: return 0
+        return counter.most_common(1)[0][0]
 
     def predict(self, X):
         X = np.array(X)
