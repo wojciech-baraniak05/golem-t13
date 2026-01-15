@@ -15,8 +15,3 @@ def train(loader: DataLoader, model: nn.Module, loss_fn: nn.Module , optimizer: 
         loss.backward()
         optimizer.step()
         optimizer.zero_grad()
-
-        if batch % 100 == 0:
-            loss = loss.item()
-            current : int = (batch + 1) * len(X)
-            print(f"train loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
