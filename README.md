@@ -1,6 +1,15 @@
 # golem-t13
 Multi Layer Perceptron and Decision Tree hybrid
 
+## Project Structure
+
+src/golem/ - Main package containing the pipeline and core functionality.  
+src/golem/modeling/ - Training, testing, and evaluation utilities for models.  
+src/golem/models/ - Model implementations including MLP, DecisionTree, and RandomForest classifiers.  
+make_data.ipynb - generating 2, and loading 1 dataset - moons, circles, digits Pipeline class, also a little bit of visualization 
+
+**Pipeline.py** - main class that is responsible for simplifying code used in one notebook, handles multiclass or nor problems, load data and so much more,  
+
 ## Setup - uv
 To install uv on lin/mac:
 ```bash
@@ -10,12 +19,10 @@ For windows:
 ```bash
 powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
-## Updating
+## Initializing
 Create a venv with uv
 ```bash
 uv sync
 ```
-Thats it.
+than open .venv like you would normally.
 
-###### TODO
-for now refractoring code into OOP in Python

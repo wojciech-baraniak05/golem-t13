@@ -12,6 +12,7 @@ from golem.models.MLPClassifier import MLPClassifier
 from golem.modeling.train import train
 from golem.modeling.test import test
 from golem.modeling.accuracy import accuracy_score_MLP
+from golem.modeling.embeddingUtilities import visualize_embedding_tsne, visualize_embedding_pca
 
 
 class Pipeline:
@@ -202,11 +203,31 @@ class Pipeline:
             self.gb_simple_model = model
         
         return model, acc_val
-    
-
-
-             
-
-
-
-            
+    def embedding_visualization_tsne(self, model: Optional[MLPClassifier] = None, device: Optional[torch.device] = None) -> None:
+        from golem.modeling.embeddingUtilities import visualize_embedding_tsne
+        
+        if model is None:
+            model = self.mlp_model
+        if model is None:
+            raise ValueError("No model provided and no mlp_model stored")
+        
+        if self.loaders[2] is None:
+            raise ValueError("Data loaders not initialized")
+        
+        device = self._get_device(device)
+        
+        visualize_embedding_tsne(self.loaders[2], model, device=device)
+    def embedding_visualization_pca(self, model: Optional[MLPClassifier] = None, device: Optional[torch.device] = None) -> None:
+        from golem.modeling.embeddingUtilities import visualize_embedding_pca
+        
+        if model is None:
+            model = self.mlp_model
+        if model is None:
+            raise ValueError("No model provided and no mlp_model stored")
+        
+        if self.loaders[2] is None:
+            raise ValueError("Data loaders not initialized")
+        
+        device = self._get_device(device)
+        
+        visualize_embedding_pca(self.loaders[2], model, device=device)
