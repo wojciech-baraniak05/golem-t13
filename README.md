@@ -24,5 +24,12 @@ Create a venv with uv
 ```bash
 uv sync
 ```
-than open .venv like you would normally.
+
+## Overview
+This project compares Multi Layer Perceptron, Decision tree, and the hybrid of these two.
+
+In the Hybrid architecture, MLP returns embeddings (that are the results from the penultimate layer), then Decision Tree uses them to learn the proper classification. MLP architecture:
+
+<img width="363" height="256" alt="image" src="https://github.com/user-attachments/assets/5d575d13-5e50-4535-81cc-d6046748fe25" />
+
 
