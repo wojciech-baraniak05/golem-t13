@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
-def test(dataloader: DataLoader, model: nn.Module, loss_fn: nn.Module, Device: torch.device, text: str ='Val'):
+def test(dataloader: DataLoader, model: nn.Module, loss_fn: nn.Module, Device: torch.device, text: str ='Val') -> float:
     size: int = len(dataloader.dataset)
     num_batches: int = len(dataloader)
     model.eval()
@@ -13,11 +13,16 @@ def test(dataloader: DataLoader, model: nn.Module, loss_fn: nn.Module, Device: t
         for X, y in dataloader:
             X, y = X.to(Device), y.to(Device)
             pred_logits: torch.Tensor = model(X)
-            test_loss += loss_fn(pred_logits, y).item()
-            predicted_labels: torch.Tensor = (pred_logits > 0).float()
-            correct += (predicted_labels == y).type(torch.float).sum().item()
+            
+            if pred_logits.shape[-1] > 1:
+                test_loss += loss_fn(pred_logits, y.long()).item()
+                predicted_labels: torch.Tensor = torch.argmax(pred_logits, dim=1)
+                correct += (predicted_labels == y.long().squeeze()).sum().item()
+            else:
+                test_loss += loss_fn(pred_logits, y).item()
+                predicted_labels: torch.Tensor = (pred_logits > 0).float()
+                correct += (predicted_labels == y).type(torch.float).sum().item()
             
     test_loss /= num_batches
     correct /= size
-    
-    print(f"{text} Error: \n Accuracy: {100*correct:>0.1f}%, Avg test loss: {test_loss:>8f} \n")
+    return correct
