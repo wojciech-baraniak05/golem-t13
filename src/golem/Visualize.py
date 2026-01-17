@@ -16,10 +16,7 @@ from models.MyRandomForestClassifier import MyRandomForestClassifier
 from models.MLPClassifier import MLPClassifier
 
 class MLPWrapper:
-    """
-    Klasa pomocnicza, która nadaje Twojemu modelowi MLPClassifier interfejs 
-    zgodny ze Scikit-Learn (metody fit i predict), aby łatwo go wizualizować.
-    """
+
     def __init__(self, depth=4, hidden_dim=32, epochs=200, lr=0.01, device='cpu'):
         self.depth = depth
         self.hidden_dim = hidden_dim
@@ -30,12 +27,10 @@ class MLPWrapper:
         self.out_dim = None
 
     def fit(self, X, y):
-        # Określenie wymiarów wejścia i wyjścia
         input_dim = X.shape[1]
         classes = np.unique(y)
         self.out_dim = len(classes) if len(classes) > 2 else 1
         
-        # Inicjalizacja Twojego modelu MLPClassifier
         self.model = MLPClassifier(
             depth=self.depth, 
             input_dim=input_dim, 
@@ -79,9 +74,7 @@ class MLPWrapper:
         return predicted.astype(int)
 
 class HybridMLPTreeWrapper:
-    """
-    To jest klasa, która łączy MLP jako ekstraktor cech i Twoje Drzewo jako klasyfikator.
-    """
+
     def __init__(self, mlp_params, tree_params, device='cpu'):
         self.mlp_wrapper = MLPWrapper(**mlp_params, device=device)
         self.tree = MyDecisionTreeClassifier(**tree_params)
@@ -110,8 +103,7 @@ class HybridMLPTreeWrapper:
             
         return self.tree.predict(X_embeddings)
 def plot_decision_boundary(clf, X, y, ax, title):
-    """Rysuje granice decyzyjne klasyfikatora."""
-    h = .02  # krok siatki
+    h = .02  
     x_min, x_max = X[:, 0].min() - 0.5, X[:, 0].max() + 0.5
     y_min, y_max = X[:, 1].min() - 0.5, X[:, 1].max() + 0.5
     xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
@@ -138,15 +130,16 @@ def plot_decision_boundary(clf, X, y, ax, title):
 
 
 datasets = []
+noise_levels = [0.2, 1, 2]
 
-X_moons, y_moons = make_moons(n_samples=200, noise=0.2, random_state=42)
-datasets.append(("Moons", X_moons, y_moons))
+for noise in noise_levels:
+    X_moons, y_moons = make_moons(n_samples=200, noise=noise, random_state=42)
+    datasets.append((f"Moons (noise={noise})", X_moons, y_moons))
 
-X_circles, y_circles = make_circles(n_samples=200, noise=0.1, factor=0.5, random_state=42)
-datasets.append(("Circles", X_circles, y_circles))
+    X_circles, y_circles = make_circles(n_samples=200, noise=noise, factor=0.5, random_state=42)
+    datasets.append((f"Circles (noise={noise})", X_circles, y_circles))
 
 digits = load_digits()
-
 X_digits, y_digits = digits.data, digits.target
 
 mask = np.isin(y_digits, [0, 1, 2]) 
@@ -155,14 +148,13 @@ y_digits = y_digits[mask]
 
 pca = PCA(n_components=2)
 X_digits_2d = pca.fit_transform(X_digits)
-
-
 scaler = StandardScaler()
 X_digits_2d = scaler.fit_transform(X_digits_2d)
+
 datasets.append(("Digits (PCA 2D)", X_digits_2d, y_digits))
 
 X_blobs, y_blobs = make_blobs(n_samples=300, centers=12, cluster_std=1.5, random_state=42)
-datasets.append(("Blobs (6 classes)", X_blobs, y_blobs))
+datasets.append(("Blobs (12 classes)", X_blobs, y_blobs))
 
 classifiers = [
     ("Decision Tree", MyDecisionTreeClassifier(max_depth=5)),
@@ -174,35 +166,28 @@ classifiers = [
     ))
 ]
 
-fig, axes = plt.subplots(len(datasets), len(classifiers), figsize=(15, 12))
-noise_val = [0.2, 1, 10]
-for i in noise_val:
-    X_moons, y_moons = make_moons(n_samples=200, noise=i, random_state=42)
-    datasets.append(("Moons", X_moons, y_moons))
+for i, (ds_name, X, y) in enumerate(datasets):
+    print(f"\n--- Zbiór danych: {ds_name} ---")
+    
+    
+    fig, axes = plt.subplots(1, len(classifiers), figsize=(20, 5))
+    
+    fig.suptitle(f"Porównanie modeli dla zbioru: {ds_name}", fontsize=16)
 
-    X_circles, y_circles = make_circles(n_samples=200, noise=i, factor=0.5, random_state=42)
-    datasets.append(("Circles", X_circles, y_circles))
-    X_blobs, y_blobs = make_blobs(n_samples=300, centers=12, cluster_std=1.5, random_state=42)
-    datasets.append(("Blobs (6 classes)", X_blobs, y_blobs))
-    for i, (ds_name, X, y) in enumerate(datasets):
-
-        print(f"\n--- Zbiór danych: {ds_name} ---")
-
-        for j, (clf_name, clf) in enumerate(classifiers):
-            ax = axes[i, j]
+    for j, (clf_name, clf) in enumerate(classifiers):
+        ax = axes[j] 
+        
+        try:
+            clf.fit(X, y)
             
-            # Trenowanie
-            try:
-                clf.fit(X, y)
-                
-                y_pred = clf.predict(X)
-                acc = accuracy_score(y, y_pred)
-                print(f"Model: {clf_name:20} | Accuracy: {acc:.2%}")
+            y_pred = clf.predict(X)
+            acc = accuracy_score(y, y_pred)
+            print(f"Model: {clf_name:20} | Accuracy: {acc:.2%}")
 
-                plot_decision_boundary(clf, X, y, ax, f"{clf_name}\nAcc: {acc:.2f}") # Dodano acc też do tytułu wykresu
-            except Exception as e:
-                print(f"Nie udało się wytrenować {clf_name}: {e}")
-                ax.text(0.5, 0.5, "Błąd treningu", ha='center')
+            plot_decision_boundary(clf, X, y, ax, f"{clf_name}\nAcc: {acc:.2f}") 
+        except Exception as e:
+            print(f"Nie udało się wytrenować {clf_name}: {e}")
+            ax.text(0.5, 0.5, "Błąd treningu", ha='center')
 
-plt.tight_layout()
+    plt.tight_layout()
 plt.show()

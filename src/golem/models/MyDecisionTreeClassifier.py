@@ -1,4 +1,4 @@
-from __future__ import annotations  # <--- TO MUSI BYĆ PIERWSZE
+from __future__ import annotations 
 import numpy as np
 from typing import Tuple, Optional
 
