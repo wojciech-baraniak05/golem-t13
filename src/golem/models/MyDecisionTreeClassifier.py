@@ -1,6 +1,6 @@
+from __future__ import annotations  # <--- TO MUSI BYĆ PIERWSZE
 import numpy as np
 from typing import Tuple, Optional
-from __future__ import annotations
 
 class Node:
     def __init__(self, feature:int = None, threshold:float = None, left: Node = None, right: Node = None, *, value: int = None):
